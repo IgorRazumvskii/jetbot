@@ -9,21 +9,13 @@ services:
       rtprio: 99
       memlock: -1
     runtime: nvidia
-    group_add:
-      - "44"
     restart: always
     network_mode: host
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - /tmp/argus_socket:/tmp/argus_socket
-      - /etc/glvnd/egl_vendor.d/10_nvidia.json:/tmp/10_nvidia.json:ro
       - ./src:/home/app/ros2_ws/src
     environment:
       - DISPLAY=${DISPLAY}
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=all
-      - LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libGLdispatch.so.0
-      - __EGL_VENDOR_LIBRARY_FILENAMES=/tmp/10_nvidia.json
       - ROS_DOMAIN_ID=0
       - ROS_LOCALHOST_ONLY=0
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
