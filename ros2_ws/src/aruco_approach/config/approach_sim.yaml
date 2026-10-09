@@ -1,0 +1,40 @@
+# Параметры для симуляции в Gazebo (мир jetbot_lab/aruco_room.sdf).
+aruco_approach:
+  ros__parameters:
+    stop_distance: 0.5
+    max_linear_speed: 0.2
+    max_angular_speed: 1.0
+    marker_size: 0.20           # маркер в мире Gazebo — 20 см
+
+    marker_id: 0
+    aruco_dictionary: DICT_4X4_50
+    image_topic: /camera/image/raw
+    use_compressed: false
+    camera_info_topic: /camera/camera_info
+
+    control_rate: 20.0
+    angular_kp: 1.5
+    angular_ki: 0.0
+    angular_kd: 0.1
+    linear_kp: 0.8
+    linear_ki: 0.0
+    linear_kd: 0.05
+    distance_tolerance: 0.03
+    resume_tolerance: 0.12
+    angle_tolerance: 0.03
+    heading_slowdown_angle: 0.5
+    min_linear_speed: 0.0
+    min_angular_speed: 0.0
+    max_linear_accel: 0.5
+    max_angular_accel: 3.0
+    filter_alpha: 0.5
+
+    lost_timeout: 0.5
+    search_delay: 1.5
+    search_angular_speed: 0.5
+    search_timeout: 0.0
+
+teleop:
+  ros__parameters:
+    speed: 0.3
+    turn: 1.0

@@ -1,0 +1,17 @@
+# Мультиплексор команд скорости (ДЗ 1).
+# В вход teleop попадают только НЕнулевые команды (их пропускает
+# twist_nonzero_filter), поэтому teleop главнее, только пока им реально
+# управляют; при нулевом или молчащем teleop едет aruco_approach.
+# timeout teleop чуть больше задержки автоповтора клавиатуры (~0.5 с),
+# чтобы при удержании клавиши управление не «моргало».
+twist_mux:
+  ros__parameters:
+    topics:
+      teleop:
+        topic   : cmd_vel_teleop_active
+        timeout : 0.7
+        priority: 100
+      navigation:
+        topic   : cmd_vel_nav
+        timeout : 0.5
+        priority: 10

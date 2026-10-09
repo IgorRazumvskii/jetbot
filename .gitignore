@@ -1,0 +1,15 @@
+# артефакты colcon
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# локальное состояние контейнера: xauth-cookie X-сервера и кэш Gazebo Fuel
+.docker/
+
+# исходный пакет курса (клонируется отдельно, без изменений, ~50 МБ мешей):
+#   git clone https://github.com/KirillMouraviev/jetbot_ros_gazebo ros2_ws/src/jetbot_ros_gazebo
+ros2_ws/src/jetbot_ros_gazebo/
+
+__pycache__/
+*.pyc
+.pytest_cache/

@@ -1,0 +1,36 @@
+# Локальное окружение ROS2 Humble + Gazebo Fortress для работы с JetBot.
+# Запускать через ./dev.sh — он готовит X11-доступ и подключает GPU-override.
+name: jetbot
+
+services:
+  ros2:
+    build:
+      context: ./docker
+      args:
+        USER_UID: ${HOST_UID:-1000}
+        USER_GID: ${HOST_GID:-1000}
+    image: jetbot-ros2-humble:latest
+    container_name: jetbot_ros2
+    user: ros
+    # host-сеть нужна, чтобы DDS видел робота по Wi-Fi/USB, а X11-клиенты
+    # подключались к abstract-сокету X-сервера (snap-docker не видит /tmp хоста)
+    network_mode: host
+    ipc: host
+    stdin_open: true
+    tty: true
+    environment:
+      DISPLAY: ${DISPLAY:-:0}
+      XAUTHORITY: /home/ros/.docker.xauth
+      QT_X11_NO_MITSHM: "1"
+      ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-0}
+      ROS_LOCALHOST_ONLY: ${ROS_LOCALHOST_ONLY:-0}
+      TERM: xterm-256color
+    volumes:
+      - ./ros2_ws:/home/ros/ros2_ws
+      - ./robot:/home/ros/robot
+      - ./.docker/xauth:/home/ros/.docker.xauth:ro
+      # кэш моделей Gazebo Fuel (склад Tugbot и т.п.), чтобы не качать заново
+      - ./.docker/ignition:/home/ros/.ignition
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+    devices:
+      - /dev/dri:/dev/dri

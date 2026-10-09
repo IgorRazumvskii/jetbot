@@ -1,0 +1,51 @@
+# Параметры для реального JetBot.
+# Узел запускается на ноутбуке и берёт JPEG-кадры с робота
+# (publish_raw публикует их в /camera/image/raw/compressed) — по Wi-Fi
+# несжатое видео не пролезет.
+aruco_approach:
+  ros__parameters:
+    # --- требуемые заданием ---
+    stop_distance: 0.5          # м
+    max_linear_speed: 0.15      # м/с
+    max_angular_speed: 1.0      # рад/с
+    marker_size: 0.08           # м, сторона внешнего ЧЁРНОГО квадрата маркера (STag HD15 id 54 — 8 см)
+
+    # маркер курса: STag, библиотека HD15, id 54 (для ArUco: aruco / DICT_4X4_50)
+    marker_type: stag
+    aruco_dictionary: HD15
+    marker_id: 54               # -1 — любой маркер
+    image_topic: /camera/image/raw
+    use_compressed: true
+    camera_info_topic: /camera/camera_info
+    # Без калибровки (camera_info) камера считается обскурой с этим фокусом.
+    # Оценить фокус: ros2 run aruco_approach estimate_focal (см. README)
+    camera_hfov_deg: 62.2
+    focal_length_px: 388.8      # px для JPEG 640x360, измерено estimate_focal (маркер 8 см на 0.5 м)
+
+    control_rate: 20.0
+    angular_kp: 1.5
+    angular_ki: 0.0
+    angular_kd: 0.1
+    linear_kp: 0.8
+    linear_ki: 0.0
+    linear_kd: 0.05
+    distance_tolerance: 0.03
+    resume_tolerance: 0.12
+    angle_tolerance: 0.03
+    heading_slowdown_angle: 0.5
+    # мёртвая зона моторов: если робот «не дотягивает» на малых скоростях — увеличить
+    min_linear_speed: 0.0
+    min_angular_speed: 0.0
+    max_linear_accel: 0.4
+    max_angular_accel: 3.0
+    filter_alpha: 0.5
+
+    lost_timeout: 0.5
+    search_delay: 1.5
+    search_angular_speed: 0.5
+    search_timeout: 0.0
+
+teleop:
+  ros__parameters:
+    speed: 0.15
+    turn: 1.0

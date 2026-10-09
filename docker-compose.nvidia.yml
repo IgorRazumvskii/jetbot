@@ -1,0 +1,13 @@
+# Проброс NVIDIA GPU без nvidia-container-toolkit (см. docker/setup_host_gpu.sh).
+# HOST_LIB_DIR выставляет ./dev.sh: для snap-docker это путь через hostfs.
+services:
+  ros2:
+    environment:
+      NVIDIA_HOST_LIBS: /host/lib
+    volumes:
+      - ${HOST_LIB_DIR:-/usr/lib/x86_64-linux-gnu}:/host/lib:ro
+    devices:
+      - /dev/nvidia0:/dev/nvidia0
+      - /dev/nvidiactl:/dev/nvidiactl
+      - /dev/nvidia-modeset:/dev/nvidia-modeset
+      - /dev/nvidia-uvm:/dev/nvidia-uvm
