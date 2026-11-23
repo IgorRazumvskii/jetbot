@@ -1,16 +1,16 @@
-# JetBot ROS2 MIPT
+# JetBot с ROS 2 для МФТИ
 
-A complete ROS2 implementation for JetBot differential drive robot with navigation capabilities, designed for educational and research purposes at MIPT.
+Комплект программ на ROS 2 для дифференциального робота JetBot с автономной навигацией. Проект предназначен для учебных и исследовательских задач МФТИ.
 
-## Overview
+## Обзор
 
-This project provides a full ROS2 stack for JetBot robots including:
-- Hardware interface for differential drive control
-- LIDAR integration (RPLidar)
-- Navigation stack (Nav2)
-- SLAM capabilities (slam_toolbox)
-- Joystick control support
-- Docker-based deployment
+В проект входят следующие компоненты:
+- Аппаратный интерфейс дифференциального привода
+- Подключение лидара RPLidar
+- Автономная навигация Nav2
+- Картирование и локализация с помощью SLAM Toolbox
+- Управление с геймпада
+- Развёртывание в Docker
 
 ## Визуализации ЛР 3, ЛР 4 и ДЗ 2
 
@@ -34,381 +34,381 @@ This project provides a full ROS2 stack for JetBot robots including:
 
 ![Карта занятости и траектория Scout появляются по мере воспроизведения rosbag](coursework/homework/hw02_slam/results/03-slam-replay.gif)
 
-## Prerequisites
+## Требования
 
-- NVIDIA Jetson platform (tested on Jetson Nano)
-- Docker with NVIDIA runtime support
-- ROS2 Humble (via Docker)
-- Connected hardware:
-  - JetBot motors via `/dev/ttyMOTOR`
-  - RPLidar via `/dev/ttyLIDAR`
-  - USB camera via `/dev/video0`
-  - Gamepad controller via `/dev/input/js0`
+- Плата NVIDIA Jetson. Проект проверен на Jetson Nano.
+- Docker с поддержкой среды выполнения NVIDIA
+- ROS 2 Humble в контейнере Docker
+- Подключённые устройства:
+  - Моторы JetBot через `/dev/ttyMOTOR`
+  - Лидар RPLidar через `/dev/ttyLIDAR`
+  - USB-камера через `/dev/video0`
+  - Геймпад через `/dev/input/js0`
 
-## Hardware Setup
+## Настройка оборудования
 
-### USB Device Mapping (Required)
-Before running the Docker containers, you need to set up consistent device names for your hardware. It should be done only ones:
+### Привязка имён USB-устройств
+Перед запуском контейнеров один раз назначьте оборудованию постоянные имена устройств.
 
 ```bash
-# Run on the JetBot host system (NOT inside Docker)
+# Выполнить на JetBot вне контейнера Docker
 cd general_scripts
 sudo ./create_udev_rules.sh
 ```
 
-This script:
-- Creates symbolic links for USB devices with consistent names
-- Maps motor controller (CH340 chip) to `/dev/ttyMOTOR`
-- Maps RPLidar (CP210x chip) to `/dev/ttyLIDAR`
-- Automatically detects devices by USB vendor/product IDs
+Скрипт настраивает устройства:
+- Создаёт символические ссылки с постоянными именами.
+- Назначает контроллеру моторов с микросхемой CH340 имя `/dev/ttyMOTOR`.
+- Назначает RPLidar с микросхемой CP210x имя `/dev/ttyLIDAR`.
+- Определяет устройства по идентификаторам производителя и модели USB.
 
-**Device mapping details:**
-- **Motors**: `ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7522"` → `/dev/ttyMOTOR`
-- **LIDAR**: `ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60"` → `/dev/ttyLIDAR`
+**Правила привязки устройств**
+- Моторы с `ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7522"` получают имя `/dev/ttyMOTOR`.
+- Лидар с `ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60"` получает имя `/dev/ttyLIDAR`.
 
-After running the script, verify device availability:
+После выполнения скрипта проверьте, что устройства доступны.
 ```bash
 ls -la /dev/tty{MOTOR,LIDAR}
 ```
 
-## Docker Architecture
+## Сборка образов Docker
 
-This project uses a two-stage Docker build process:
+Сначала собирается базовый образ, затем образ для JetBot.
 
-### 1. Base Image (`docker_configs/Dockerfile_base`)
-- **Purpose**: Contains general-purpose ROS2 packages and dependencies
-- **Contents**: ROS2 Humble core, Navigation2, RViz2, RQT tools, build tools
-- **Build location**: Recommended to build on powerful AMD64 host machine
-- **Usage**: Foundation for all JetBot applications
+### 1. Базовый образ (`docker_configs/Dockerfile_base`)
+- Содержит общие пакеты ROS 2 и их зависимости.
+- Включает основные пакеты ROS 2 Humble, Navigation2, RViz2, RQT и инструменты сборки.
+- Рекомендуется собирать на производительном компьютере AMD64.
+- Служит основой для приложений JetBot.
 
-### 2. Application Image (`Dockerfile`)
-- **Purpose**: Adds specific packages for JetBot functionality
-- **Contents**: Additional ROS2 packages (xacro, twist_mux, joystick drivers, etc.)
-- **Build location**: Can be built on JetBot or host machine
-- **Usage**: Ready-to-run JetBot container
+### 2. Образ для JetBot (`Dockerfile`)
+- Добавляет пакеты для работы с JetBot.
+- Включает `xacro`, `twist_mux`, драйверы геймпада и другие зависимости.
+- Собирается на JetBot или на отдельном компьютере.
+- Позволяет запустить готовый контейнер JetBot.
 
-## Quick Start
+## Быстрый запуск
 
-### 1. Hardware Setup
+### 1. Настройка оборудования
 ```bash
-# Set up device mapping (run on JetBot host)
+# Назначить имена устройств на JetBot
 cd general_scripts
 sudo ./create_udev_rules.sh
 
-# Verify devices are accessible
+# Проверить доступность устройств
 ls -la /dev/tty{MOTOR,LIDAR}
 ```
 
-### 2. Building the Project
+### 2. Сборка проекта
 
-#### Option A: Complete Local Build (on JetBot)
+#### Вариант А. Полная сборка на JetBot
 ```bash
-# Clone the repository
+# Клонировать репозиторий
 git clone <repository-url>
 cd jetbot_ros2_mipt
 
-# Build the application Docker image (includes base build)
+# Собрать образ приложения вместе с базовым образом
 docker build -t jetbot_full_ros2 .
 
-# Start the container
+# Запустить контейнер и войти в него
 docker-compose up -d
 docker exec -it --privileged jetbot_ros2_mipt-jetbot-1 bash
 
-# Build your packages (first time)
+# Первый раз собрать пакеты ROS 2
 cd ~/ros2_ws
 colcon build --symlink-install
 ```
 
-#### Option B: Cross-compilation (Recommended)
-**Step 1: Build base image on host machine (AMD64)**
+#### Вариант Б. Кросс-компиляция
+**Шаг 1. Соберите базовый образ на компьютере AMD64**
 ```bash
-# Navigate to docker configs
+# Перейти в каталог конфигурации Docker
 cd docker_configs
 
-# Build base image and save as tar (for transfer to JetBot)
+# Собрать базовый образ и сохранить его в архиве для переноса на JetBot
 ./build_for_amd.sh tar jetbot_ros2_base.tar
 
-# Or build and push to Docker Hub
+# Или собрать и отправить образ в Docker Hub
 ./build_for_amd.sh push v1.0.0
 ```
 
-**Step 2: Transfer to JetBot and build application**
+**Шаг 2. Перенесите базовый образ на JetBot и соберите образ приложения**
 ```bash
-# Transfer tar to JetBot
+# Скопировать архив на JetBot
 scp jetbot_ros2_base.tar jetbot@<jetbot-ip>:~
 
-# On JetBot: Load base image and build application
+# На JetBot загрузить базовый образ и собрать образ приложения
 docker load < jetbot_ros2_base.tar
 docker build -t jetbot_full_ros2 .
 ```
 
-### 3. Building Your ROS2 Packages
+### 3. Сборка пакетов ROS 2
 
-#### Initial setup
+#### Подготовка контейнера
 ```bash
-# Start the container
+# Запустить контейнер
 docker-compose up -d
 
-# Enter the container
+# Войти в контейнер
 docker exec -it --privileged jetbot_ros2_mipt-jetbot-1 bash
 ```
 
-#### Build commands
+#### Команды сборки
 ```bash
-# Build all packages
+# Собрать все пакеты
 cd ~/ros2_ws
 colcon build --symlink-install
 
-# Build specific package
+# Собрать один пакет
 colcon build --packages-select diffdrive_jetbot
 
-# Build with parallel jobs (adjust number based on your system)
+# Собрать параллельно. Выбрать число процессов под свою систему.
 colcon build --symlink-install --parallel-workers 2
 
-# Source the workspace
+# Подключить окружение рабочего пространства
 source install/setup.bash
 ```
 
-#### Development workflow
+#### Сборка после изменений
 ```bash
-# After making changes to source code
+# Пересобрать изменённый пакет
 colcon build --packages-select <package_name>
 source install/setup.bash
 
-# For fast iteration (only builds changed packages)
+# Пересобрать пакет и его зависимости
 colcon build --symlink-install --packages-up-to <package_name>
 ```
 
-## Usage
+## Использование
 
-### Launch All Sensors and Drivers
-Start all hardware drivers including motors, LIDAR, and joystick control:
+### Запуск датчиков и драйверов
+Запустите драйверы моторов и лидара, а также обработку команд геймпада.
 ```bash
 ros2 launch jetbot_bringup activate_all_drivers.launch.py
 ```
 
-This launches:
-- Motor controllers (diffdrive_jetbot)
-- RPLidar driver
-- Joystick input handling
-- Twist multiplexer for command prioritization
+Команда запускает:
+- Контроллер моторов (`diffdrive_jetbot`)
+- Драйвер RPLidar
+- Обработчик ввода с геймпада
+- Переключатель источников команд с учётом приоритетов
 
-### SLAM Mapping
-Create a map of the environment:
+### Построение карты с помощью SLAM
+Запустите построение карты помещения.
 ```bash
 ros2 launch jetbot_bringup mapping.launch.py
 ```
 
-This starts:
-- slam_toolbox in online async mode
-- Real-time map building from LIDAR data
+Команда запускает:
+- `slam_toolbox` в асинхронном режиме
+- Построение карты по данным лидара в реальном времени
 
-### Navigation
-Navigate using the created map:
+### Навигация
+Для навигации по построенной карте запустите Nav2.
 ```bash
 ros2 launch jetbot_bringup nav2_bringup.launch.py
 ```
 
-Launches the full Nav2 stack:
-- Path planning
-- Obstacle avoidance
-- Goal-based navigation
+Nav2 обеспечивает:
+- Планирование пути
+- Обход препятствий
+- Движение к заданной цели
 
-### Localization (with existing map)
-For localization against a pre-built map:
+### Локализация по сохранённой карте
+Для определения положения по уже построенной карте используйте следующий запуск.
 ```bash
 ros2 launch jetbot_bringup localization.launch.py
 ```
 
-### PID Controller Tuning
-This project includes a standalone interactive tool for tuning the motor PID controllers. This is crucial for achieving stable and responsive robot movement.
+### Настройка ПИД-регуляторов
+Для настройки ПИД-регуляторов моторов предусмотрена отдельная интерактивная утилита. Настройка влияет на устойчивость движения и точность отработки команд.
 
-**Important**: The PID parameters are stored directly in the motor controller's flash memory. They are **not** configured through ROS parameters or URDF files. The `pid_tune` utility is the only supported method for setting these values.
+**Важно.** Коэффициенты ПИД-регуляторов хранятся во флеш-памяти контроллера моторов. Записывайте их с помощью `pid_tune`. Параметры ROS и URDF для этой настройки не используются.
 
-**1. Build the Tuning Tool**
+**1. Соберите утилиту**
 
-The tool is not part of the main `colcon` build. You need to compile it manually inside the container.
+Утилита собирается вручную внутри контейнера, отдельно от основной сборки `colcon`.
 
 ```bash
-# Enter the container
+# Войти в контейнер
 docker exec -it --privileged jetbot_ros2_mipt-jetbot-1 bash
 
-# Navigate to the tuning scripts directory
+# Перейти в каталог инструментов настройки
 cd ~/ros2_ws/src/diffdrive_jetbot/tune_scripts
 
-# Compile the tool
+# Собрать утилиту
 g++ -I../hardware/include/diffdrive_jetbot -o pid_tune pid_tune.cpp -lserial -lpthread
 ```
 
-**2. Run the Tuning Tool**
+**2. Запустите утилиту**
 
-Once compiled, run the tool from the same directory:
+После сборки запустите её из того же каталога.
 ```bash
 ./pid_tune
 ```
 
-**3. The Tuning Process**
+**3. Выполните настройку**
 
-The tool guides you through an interactive process:
-1.  **Initial Parameters**: It will first ask for "ultimate gain" (Ku) and "ultimate period" (Tu) to calculate initial PID values using the Ziegler-Nichols method. You can find these by manually testing different `Kp` values (with `Ki` and `Kd` at zero) until the motors oscillate, or you can just provide a starting guess.
-2.  **Interactive Loop**: You will enter a menu with the following options:
-    - `[t] Test current PID values`: This is the main step. The tool will apply the PID values, which requires you to **manually reboot the motor controller**. After rebooting and pressing Enter, it runs a series of speed tests and gives you a performance score (lower is better).
-    - `[m] Manually enter new PID values`: Allows you to adjust Kp, Ki, and Kd to try and improve the score.
-    - `[s] Save best values and exit`: When you are satisfied with the performance, this option will apply the best-found PID values to the controller and exit.
-3.  **Results**: After exiting, the tool will have generated:
-    - A `.csv` file with raw data from the tests.
-    - A `.txt` report with performance analysis.
-    - A command to run `plots.py` to visualize the test data graphically.
+Утилита последовательно проводит через следующие этапы.
+1. **Начальные параметры.** Утилита запрашивает предельный коэффициент усиления Ku и период предельных колебаний Tu, чтобы рассчитать начальные коэффициенты по методу Циглера — Николса. Для их определения изменяйте `Kp` при нулевых `Ki` и `Kd` до появления колебаний. Можно также задать приближённые начальные значения.
+2. **Интерактивное меню.** Доступны следующие действия:
+   - `[t]` — проверить текущие коэффициенты. Утилита применит значения, после чего нужно **вручную перезапустить контроллер моторов**. После перезапуска нажмите Enter. Утилита выполнит серию испытаний на разных скоростях и выведет оценку. Чем она ниже, тем лучше результат.
+   - `[m]` — ввести новые `Kp`, `Ki` и `Kd`, чтобы попробовать улучшить оценку.
+   - `[s]` — применить лучшие из проверенных значений к контроллеру и выйти.
+3. **Результаты.** После выхода будут доступны:
+   - Файл `.csv` с исходными данными испытаний.
+   - Отчёт `.txt` с анализом результатов.
+   - Команда запуска `plots.py` для построения графиков.
 
-## General Scripts
+## Служебные скрипты
 
-### Hardware Setup Scripts
-Located in `general_scripts/`:
+### Настройка оборудования
+Скрипты находятся в каталоге `general_scripts/`.
 
-- **`create_udev_rules.sh`**: Sets up USB device symbolic links (run on host system)
+- `create_udev_rules.sh` задаёт постоянные имена USB-устройств. Выполняется на JetBot.
   ```bash
-  # Must be run on JetBot host (outside Docker)
+  # Выполнить на JetBot вне контейнера Docker
   sudo ./create_udev_rules.sh
   ```
-  Creates consistent device names:
-  - Motor controller → `/dev/ttyMOTOR`
-  - RPLidar → `/dev/ttyLIDAR`
+  Скрипт назначает имена:
+  - Контроллер моторов → `/dev/ttyMOTOR`
+  - Лидар RPLidar → `/dev/ttyLIDAR`
 
-### Docker Build Scripts
-Located in `docker_configs/`:
+### Сборка образов Docker
+Скрипты находятся в каталоге `docker_configs/`.
 
-- **`build_for_amd.sh`**: Cross-compilation script for building ARM64 base images on AMD64 machines
+- `build_for_amd.sh` собирает базовые образы ARM64 на компьютере AMD64.
   ```bash
-  # Save as tar file
+  # Сохранить образ в архиве
   ./build_for_amd.sh tar jetbot_ros2_base.tar
   
-  # Push to Docker registry
+  # Отправить образ в реестр Docker
   ./build_for_amd.sh push v1.0.0
   ```
 
-- **`find_ros_packages.py`**: Helper script to find ROS packages by prefix during base image build
-- **`filter_rosinstall.py`**: Filters out already installed packages from rosinstall files to avoid conflicts
+- `find_ros_packages.py` ищет пакеты ROS по префиксу при сборке базового образа.
+- `filter_rosinstall.py` исключает установленные пакеты из файлов rosinstall, чтобы избежать конфликтов.
 
-### Robot Control
-- **Joystick Control**: Use connected gamepad for manual control
-- **Twist Commands**: Send velocity commands via `/cmd_vel` topic
-- **Multiple Input Sources**: Automatic switching between joystick, navigation, and manual control
+### Управление роботом
+- Подключите геймпад для ручного управления.
+- Отправляйте команды скорости в топик `/cmd_vel`.
+- Источник команд переключается автоматически между геймпадом, навигацией и ручным управлением.
 
-## Architecture
+## Устройство проекта
 
-### Packages
+### Пакеты ROS 2
 
-1. **`jetbot_bringup`**: Main launch package
-   - Launch files for different operation modes
-   - Configuration files for all components
+1. **`jetbot_bringup`** — пакет запуска робота.
+   - Файлы запуска для разных режимов.
+   - Конфигурации компонентов.
 
-2. **`diffdrive_jetbot`**: Hardware interface package
-   - ROS2 Control hardware interface
-   - Serial communication with motor controller
-   - Wheel odometry and velocity control
+2. **`diffdrive_jetbot`** — пакет аппаратного интерфейса.
+   - Интеграция с ROS 2 Control.
+   - Связь с контроллером моторов по последовательному порту.
+   - Колёсная одометрия и управление скоростью.
 
-### Hardware Communication
-- **Motors**: Serial protocol via `/dev/ttyMOTOR` at 115200 baud
-- **LIDAR**: RPLidar A1/A2 via `/dev/ttyLIDAR`
-- **Camera**: USB camera for future vision applications
+### Связь с устройствами
+- **Моторы** — последовательный порт `/dev/ttyMOTOR`, 115 200 бод.
+- **Лидар** — RPLidar A1 или A2 через `/dev/ttyLIDAR`.
+- **Камера** — USB-камера для задач компьютерного зрения.
 
-### Control Flow
+### Схема управления
 ```
-Joystick/Nav2 → twist_mux → diff_drive_controller → Hardware Interface → Motors
-                    ↑
-LIDAR → slam_toolbox/nav2 → Local/Global Planning
+Геймпад или Nav2 → twist_mux → diff_drive_controller → аппаратный интерфейс → моторы
+                         ↑
+Лидар → slam_toolbox и Nav2 → локальное и глобальное планирование
 ```
 
-## Docker Images Explained
+## Состав образов Docker
 
-### Base Docker Image (`docker_configs/Dockerfile_base`)
-Contains general-purpose ROS2 components:
-- ROS2 Humble core packages
-- Navigation2 complete stack
-- RQT tools suite and RViz2
+### Базовый образ (`docker_configs/Dockerfile_base`)
+Включает общие компоненты ROS 2:
+- Основные пакеты ROS 2 Humble
+- Пакеты навигации Navigation2
+- Инструменты RQT и RViz2
 - SLAM Toolbox
-- ROS2 Control framework
-- Build tools and dependencies
+- ROS 2 Control
+- Инструменты сборки и зависимости
 
-**Why build on host machine?**
-- Faster compilation on powerful AMD64 hardware
-- Reduced thermal load on JetBot
-- Consistent build environment
-- Can be reused across multiple JetBot projects
+**Преимущества сборки на отдельном компьютере**
+- Более быстрая компиляция на производительном компьютере AMD64
+- Меньшая тепловая нагрузка на JetBot
+- Единое окружение сборки
+- Возможность использовать образ в нескольких проектах JetBot
 
-### Application Docker Image (`Dockerfile`)
-Adds JetBot-specific packages:
-- Additional teleop and control packages
-- Joystick drivers
-- Robot-specific utilities
-- Your custom packages (src/ directory)
+### Образ для JetBot (`Dockerfile`)
+Добавляет компоненты, нужные на роботе:
+- Пакеты дистанционного управления
+- Драйверы геймпада
+- Утилиты JetBot
+- Пакеты проекта из каталога `src/`
 
-**Build considerations:**
-- Lighter build process (fewer packages)
-- Can be built on JetBot if needed
-- Contains application-specific configurations
+**Особенности сборки**
+- Сборка быстрее за счёт меньшего числа пакетов.
+- При необходимости образ можно собрать на JetBot.
+- Образ содержит конфигурацию приложения.
 
-## Configuration
+## Конфигурация
 
-### Motor Parameters
-Configure in `diffdrive_jetbot/description/ros2_control/diffbot.ros2_control.xacro`:
-- `mtype`, `mline`, `mphase`: Motor encoder settings.
-- `deadzone`: Motor deadzone value.
-- `wdiameter`: Wheel diameter in millimeters.
-- `max_motor_rpm`: Maximum motor speed for scaling velocity commands.
+### Параметры моторов
+Изменяйте параметры в `diffdrive_jetbot/description/ros2_control/diffbot.ros2_control.xacro`.
+- `mtype`, `mline`, `mphase` — настройки энкодеров.
+- `deadzone` — мёртвая зона мотора.
+- `wdiameter` — диаметр колеса в миллиметрах.
+- `max_motor_rpm` — предельная частота вращения мотора для масштабирования команд скорости.
 
-### Navigation Tuning
-Edit `config/nav2_default_params.yaml` for:
-- Path planning parameters
-- Obstacle avoidance settings
-- Controller tuning
+### Настройки навигации
+В файле `config/nav2_default_params.yaml` настраиваются:
+- Планирование пути
+- Обход препятствий
+- Контроллер движения
 
-## Troubleshooting
+## Устранение неполадок
 
-### Common Issues
-1. **Device permissions**: 
-   - Ensure udev rules are properly installed: `sudo ./general_scripts/create_udev_rules.sh`
-   - Check device availability: `ls -la /dev/tty{MOTOR,LIDAR}`
-   - Verify USB connections and device IDs: `lsusb`
+### Частые проблемы
+1. **Доступ к устройствам.**
+   - Проверьте правила udev командой `sudo ./general_scripts/create_udev_rules.sh`.
+   - Проверьте наличие устройств командой `ls -la /dev/tty{MOTOR,LIDAR}`.
+   - Проверьте USB-подключения и идентификаторы устройств командой `lsusb`.
 
-2. **ROS_DOMAIN_ID**: Set consistent domain ID across all nodes
-3. **Transform errors**: Check that all required transforms are published
-4. **Build failures**: Check available memory (use fewer parallel workers if needed)
+2. **Домен ROS.** Задайте одинаковый `ROS_DOMAIN_ID` для всех узлов.
+3. **Ошибки трансформаций.** Проверьте, что публикуются все необходимые трансформации.
+4. **Ошибки сборки.** Проверьте объём доступной памяти и при необходимости уменьшите число параллельных процессов.
 
-### Debugging
+### Диагностика
 ```bash
-# Check hardware interfaces
+# Проверить аппаратные интерфейсы
 ros2 control list_hardware_interfaces
 
-# Monitor controller status
+# Проверить состояние контроллеров
 ros2 control list_controllers
 
-# View topics and transforms
+# Посмотреть топики и дерево трансформаций
 ros2 topic list
 ros2 run tf2_tools view_frames
 
-# Check build logs
+# Вывести журнал сборки в терминал
 colcon build --event-handlers console_direct+
 
-# Test motor communication (inside container)
+# Проверить связь с контроллером моторов внутри контейнера
 cd ~/ros2_ws/src/diffdrive_jetbot/hardware
 g++ -o test_motor_comms test_motor_comms.cpp -lserial
 ./test_motor_comms
 ```
 
-## Contributing
+## Как внести изменения
 
-1. Fork the repository
-2. Create a feature branch
-3. Test on actual hardware
-4. Submit a pull request
+1. Создайте форк репозитория.
+2. Создайте ветку для изменений.
+3. Проверьте изменения на реальном оборудовании.
+4. Создайте запрос на слияние.
 
-## License
+## Лицензия
 
-[Add your license information here]
+Сведения о лицензии ещё не добавлены.
 
-## Acknowledgments
+## Благодарности
 
-- Based on ROS2 Control framework
-- Uses Navigation2 for autonomous navigation
-- SLAM implementation via slam_toolbox
+- Аппаратное управление основано на ROS 2 Control.
+- Автономная навигация работает на Navigation2.
+- Картирование и локализацию обеспечивает SLAM Toolbox.

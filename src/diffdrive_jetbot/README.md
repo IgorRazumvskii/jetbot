@@ -1,23 +1,23 @@
 # diffdrive_jetbot
 
-ROS 2 hardware interface for Jetbot differential drive.
+Аппаратный интерфейс ROS 2 для дифференциального привода JetBot.
 
-## Features
-- Compatible with `diff_drive_controller` from `ros2_control`
-- Serial communication over two motors with velocity control and feedback
+## Возможности
+- Совместимость с `diff_drive_controller` из `ros2_control`.
+- Управление скоростью двух моторов и получение обратной связи по последовательному порту.
 
-## Installation
+## Установка
 ```bash
-# Clone into your workspace
+# Клонировать пакет в рабочее пространство
 cd ~/ros2_ws/src
 git clone https://github.com/your_user/diffdrive_jetbot.git
-# Build the package
+# Собрать пакет
 cd ~/ros2_ws
 colcon build --packages-select diffdrive_jetbot
 ```
 
-## Usage
+## Запуск
 ```bash
-# Bring up hardware + controllers + RViz
+# Запустить аппаратный интерфейс, контроллеры и RViz
 ros2 launch diffdrive_jetbot diffbot.launch.py
 ```

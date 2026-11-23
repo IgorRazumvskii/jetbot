@@ -29,7 +29,7 @@ ROS_DOMAIN_ID=3 RMW_IMPLEMENTATION=rmw_fastrtps_cpp \
 
 В конфигурации выбран фиксированный фрейм `odom`. По умолчанию на сетке с шагом 5 см видны `base_link` (корпус), `camera_link` (камера) и `lidar_link` (лидар). Красная ось — X, зелёная — Y, синяя — Z. Фреймы колёс и опорного шарика можно включить в `TF → Frames`, а полную иерархию открыть в `TF → Tree`.
 
-Для вращения выберите **Move Camera** и потяните сцену в центральной области, удерживая левую кнопку. На трекпаде нажмите до щелчка и ведите палец, удерживая нажатие. Прокрутка меняет масштаб. В панели `Views → Current View` можно задать `Yaw`, `Pitch` или `Distance` вручную.
+Чтобы повернуть сцену, выберите инструмент перемещения камеры (`Move Camera`) и потяните сцену в центральной области, удерживая левую кнопку. На трекпаде нажмите до щелчка и ведите палец, удерживая нажатие. Прокрутка меняет масштаб. Курс, наклон и расстояние до точки обзора можно задать вручную в панели `Views → Current View` с помощью параметров `Yaw`, `Pitch` и `Distance`.
 
 Перед следующим этапом дождаться появления цепочки фреймов в RViz. Передача идёт в сторону Mac и включает `/tf`, `/tf_static` и колесную одометрию.
 
@@ -41,7 +41,7 @@ ROS_DOMAIN_ID=3 RMW_IMPLEMENTATION=rmw_fastrtps_cpp \
 
 ## 3. Лидарная одометрия
 
-На JetBot в `~/robotics-course` клонировать ветку `ros2` пакета [rf2o_laser_odometry](https://github.com/MAPIRlab/rf2o_laser_odometry/tree/ros2) в `ros2_ws/src`. Проверенная ревизия — `b38c68e46387b98845ecbfeb6660292f967a00d3`. Скопировать [launch для JetBot](jetbot_lab03_rf2o.launch.py) в `ros2_ws/src/rf2o_laser_odometry/launch/` до сборки.
+На JetBot в `~/robotics-course` клонировать ветку `ros2` пакета [rf2o_laser_odometry](https://github.com/MAPIRlab/rf2o_laser_odometry/tree/ros2) в `ros2_ws/src`. Проверенная ревизия — `b38c68e46387b98845ecbfeb6660292f967a00d3`. До сборки скопировать [файл запуска для JetBot](jetbot_lab03_rf2o.launch.py) в `ros2_ws/src/rf2o_laser_odometry/launch/`.
 
 ```bash
 ./dockers/scripts/ros.sh env MAKEFLAGS=-j1 CMAKE_BUILD_PARALLEL_LEVEL=1 bash -c '
@@ -64,7 +64,7 @@ RF2O читает `/scan` и пишет независимую позу в `/odo
 
 В `ros2_ws/src` JetBot нужны [robot_localization](https://github.com/cra-ros-pkg/robot_localization/tree/humble-devel), ревизия `7ebaee2b7b206942a6580cdfef433c1eb063c23f`, и [geographic_info](https://github.com/ros-geographic-info/geographic_info/tree/1.0.6), тег `1.0.6`. В активном контейнере Ubuntu Focal установлены ARM64-пакеты `libgeographic19` и `libgeographic-dev` версии `1.50.1-1build1` из [Ubuntu Ports](https://ports.ubuntu.com/ubuntu-ports/pool/universe/g/geographiclib/). Для нового контейнера эту зависимость нужно установить снова.
 
-Скопировать [параметры EKF](params/ekf_jetbot.yaml) в `robot_localization/params/`. Положить [launch](jetbot_lab03_ekf.launch.py) и [адаптер RF2O](rf2o_ekf_input.py) в `robot_localization/launch/`. Выполнить на JetBot из `~/robotics-course`.
+Скопировать [параметры EKF](params/ekf_jetbot.yaml) в `robot_localization/params/`. Положить [файл запуска](jetbot_lab03_ekf.launch.py) и [адаптер RF2O](rf2o_ekf_input.py) в `robot_localization/launch/`. Выполнить на JetBot из `~/robotics-course`.
 
 ```bash
 ./dockers/scripts/ros.sh env MAKEFLAGS=-j1 CMAKE_BUILD_PARALLEL_LEVEL=1 bash -c '

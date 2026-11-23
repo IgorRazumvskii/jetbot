@@ -1,17 +1,17 @@
-# Robotics course on macOS + physical JetBot
+# История курса по робототехнике на macOS и работы с JetBot
 
 Этот репозиторий — рабочая среда курса по робототехнике, адаптированная под Mac с Apple Silicon. В нём поддерживаются два режима:
 
 1. **виртуальный JetBot** в Gazebo Harmonic на macOS;
 2. **физический JetBot** с ROS 2 Humble в Docker на самом роботе.
 
-В предыдущей сессии проверены симуляция, управление реальным роботом, RPLidar и Pi Camera с raw ROS-потоком около 29–30 FPS.
+В предыдущей сессии проверены симуляция, управление реальным роботом, лидар RPLidar и поток несжатых кадров Pi Camera в ROS с частотой примерно 29–30 кадров/с.
 
 ## Зафиксированный результат — 05.10.2026
 
-Пользователь подтвердил: реальный JetBot ездит с W/A/S/D. Текущий SSH-адрес — `172.20.10.4` (DHCP). Драйверы уже запущены в сервисе `jetbot_educational`; второй bringup не запускать.
+Пользователь подтвердил, что реальный JetBot ездит с W/A/S/D. Текущий SSH-адрес — `172.20.10.4` (DHCP). Если драйверы уже работают в сервисе `jetbot_educational`, оставьте действующий процесс.
 
-Teleop восстановлен в `/home/app/ros2_ws/src/wasd_teleop.py`. Эта папка подключена с хоста `~/IntelligentRobotics/jetbot_ros2_mipt/src`, поэтому файл сохраняется при пересоздании контейнера. Старого `/home/app/wasd_teleop.py` больше нет.
+Скрипт дистанционного управления восстановлен в `/home/app/ros2_ws/src/wasd_teleop.py`. Эта папка подключена с хоста `~/IntelligentRobotics/jetbot_ros2_mipt/src`, поэтому файл сохраняется при пересоздании контейнера. Старого `/home/app/wasd_teleop.py` больше нет.
 
 Внутри контейнера (`app@jetbotj0`) повторный запуск:
 
@@ -27,7 +27,7 @@ W/S — вперёд/назад, A/D — поворот, пробел — сто
 
 Камера в этой сессии повторно не проверена. Следующий этап — воспроизвести её запуск и проверить совместно с драйверами. Разделы ниже сохраняют историю предыдущей настройки; старый IP `172.20.10.2` заменять актуальным адресом.
 
-> Подробный технический контекст, найденные проблемы и правила для AI-агента находятся в [`AGENTS.md`](AGENTS.md).
+> Подробный технический контекст, найденные проблемы и правила для ИИ-ассистента находятся в [`AGENTS.md`](AGENTS.md).
 
 ---
 
@@ -53,7 +53,7 @@ W/S — вперёд/назад, A/D — поворот, пробел — сто
 
 ---
 
-# Часть A. Симуляция на Mac
+# Часть А. Симуляция на Mac
 
 ## 1. Требования
 
@@ -115,7 +115,7 @@ cd ~/Documents/CCM_courses/Robotics
 Ctrl+B, затем 0..3
 ```
 
-Остановка из другого terminal:
+Остановить из другого терминала:
 
 ```bash
 ./scripts/jetbot.sh down
@@ -133,11 +133,11 @@ labs/lab02_sensors_actuators/worlds/tugbot_warehouse_jetbot.sdf
 src/jetbot_ros_gazebo/models/jetbot/model_high_resolution.sdf
 ```
 
-Скрипт уже поднимает ROS↔Gazebo bridge для управления, odometry, camera и lidar.
+Скрипт запускает мост ROS–Gazebo для команд движения, одометрии, камеры и лидара.
 
 ---
 
-# Часть B. Физический JetBot
+# Часть Б. Физический JetBot
 
 ## 4. Подключение
 
@@ -171,11 +171,11 @@ ssh jetbot@192.168.55.1
 ssh jetbot@172.20.10.2
 ```
 
-Важно: всегда указывать пользователя `jetbot@`. Иначе SSH подставит username с Mac.
+Указывайте пользователя `jetbot@`, чтобы SSH подключился под учётной записью робота.
 
 ---
 
-## 5. JetBot software stack
+## 5. Программное окружение JetBot
 
 Проверенная система:
 
@@ -187,13 +187,13 @@ kernel 4.9.337-tegra
 ROS 2 Humble: внутри Docker
 ```
 
-Проект на robot host:
+Каталог проекта на JetBot:
 
 ```bash
 cd ~/IntelligentRobotics/jetbot_ros2_mipt
 ```
 
-Запустить постоянный container:
+Запустить контейнер:
 
 ```bash
 docker compose up -d
@@ -205,7 +205,7 @@ docker compose up -d
 docker compose exec -it jetbot_educational bash
 ```
 
-После этого prompt меняется с:
+Приглашение командной строки меняется с:
 
 ```text
 jetbot@jetbotj0:...
@@ -217,13 +217,13 @@ jetbot@jetbotj0:...
 app@jetbotj0:~/ros2_ws$
 ```
 
-Все `ros2` и `colcon` команды ниже выполняются **в container**.
+Все команды `ros2` и `colcon` ниже выполняются в контейнере.
 
 ---
 
-## 6. Сборка ROS workspace
+## 6. Сборка рабочего пространства ROS
 
-В container:
+В контейнере:
 
 ```bash
 source /opt/ros/humble/install/setup.bash
@@ -232,7 +232,7 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-Если `jetbot_bringup` падает на старом несуществующем launch-файле, очистить только его stale build:
+Если `jetbot_bringup` обращается к старому отсутствующему файлу запуска, очистить только артефакты старой сборки этого пакета:
 
 ```bash
 cd /home/app/ros2_ws
@@ -258,7 +258,7 @@ colcon build \
 
 ## 7. Запуск моторов и лидара
 
-Terminal 1, внутри container:
+Первый терминал, внутри контейнера:
 
 ```bash
 source /opt/ros/humble/install/setup.bash
@@ -278,14 +278,14 @@ ros2 launch jetbot_bringup activate_all_drivers.launch.py
 /twist_mux
 ```
 
-В отдельном terminal войти в тот же container и проверить:
+В отдельном терминале войти в тот же контейнер и проверить:
 
 ```bash
 ros2 node list
 ros2 topic list -t
 ```
 
-Основные topics:
+Основные топики:
 
 ```text
 /cmd_vel
@@ -296,7 +296,7 @@ ros2 topic list -t
 /tf_static
 ```
 
-Проверка lidar:
+Проверка лидара:
 
 ```bash
 ros2 topic hz /scan
@@ -312,7 +312,7 @@ RPLidar в рабочем запуске выдавал около:
 
 ## 8. Проверка движения
 
-Перед тестом освободить пространство вокруг robot.
+Перед испытанием освободить пространство вокруг робота.
 
 Коротко вперёд:
 
@@ -330,15 +330,15 @@ ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist \
 
 Оба теста физически проверены.
 
-Не запускать второй экземпляр `activate_all_drivers.launch.py`: это уже приводило к конфликту motor serial port и занятому HTTP port.
+Используйте один экземпляр `activate_all_drivers.launch.py`. При двойном запуске уже возникал конфликт за последовательный порт моторов и порт HTTP.
 
 ---
 
-# Часть C. Pi Camera
+# Часть В. Камера Pi Camera
 
-## 9. Проверка камеры на JetBot host
+## 9. Проверка камеры на JetBot
 
-Эта команда выполняется **не в Docker**, а на host:
+Выполните эту команду в системе JetBot вне контейнера:
 
 ```bash
 gst-launch-1.0 -q \
@@ -360,11 +360,11 @@ GST_ARGUS: Done Success
 
 ---
 
-## 10. Docker configuration для Pi Camera
+## 10. Настройка Docker для Pi Camera
 
-Камера потребовала явного подключения NVIDIA runtime и EGL.
+Для камеры нужно явно подключить среду выполнения NVIDIA и EGL.
 
-В `docker-compose.yml` service `jetbot_educational` должны быть camera-related параметры:
+В `docker-compose.yml` у сервиса `jetbot_educational` должны быть заданы параметры камеры:
 
 ```yaml
 runtime: nvidia
@@ -395,7 +395,7 @@ devices:
   - /dev/video0:/dev/video0
 ```
 
-На JetBot host также создан:
+В системе JetBot также создан файл:
 
 ```text
 /etc/glvnd/egl_vendor.d/10_nvidia.json
@@ -412,27 +412,27 @@ devices:
 }
 ```
 
-После изменения Compose нужен именно recreate:
+После изменений конфигурации Compose пересоздать контейнер:
 
 ```bash
 docker compose config -q
 docker compose up -d --force-recreate
 ```
 
-Обычный `docker compose restart` не применит новые mounts/environment/groups.
+Новые точки монтирования, переменные окружения и группы применяются при пересоздании контейнера.
 
 ---
 
 ## 11. Проверка GStreamer внутри Docker
 
-В container или через `docker compose exec`:
+В контейнере или через `docker compose exec`:
 
 ```bash
 gst-inspect-1.0 nvarguscamerasrc
 gst-inspect-1.0 nvvidconv
 ```
 
-Проверенный capture:
+Проверенная команда захвата:
 
 ```bash
 gst-launch-1.0 -q \
@@ -449,25 +449,25 @@ gst-launch-1.0 -q \
 nvbuf_utils: Could not get EGL display connection
 ```
 
-критерий успеха — pipeline доходит до:
+При успешной проверке цепочка обработки доходит до:
 
 ```text
 GST_ARGUS: Done Success
 ```
 
-и возвращает code `0`.
+и завершает работу с кодом `0`.
 
 ---
 
-## 12. Raw ROS camera node
+## 12. Узел ROS для несжатых кадров камеры
 
-Source package:
+Каталог исходного пакета:
 
 ```text
 /home/app/ros2_ws/src/pi_camera_ros
 ```
 
-В `setup.py` добавлен entry point:
+В `setup.py` добавлена точка входа:
 
 ```python
 'publish_raw = pi_camera.publish_raw:main',
@@ -482,19 +482,19 @@ source /home/app/ros2_ws/install/setup.bash
 ros2 run pi_camera publish_raw
 ```
 
-Topic:
+Топик:
 
 ```text
 /camera/image/raw
 ```
 
-Type:
+Тип сообщения:
 
 ```text
 sensor_msgs/msg/Image
 ```
 
-Проверить FPS:
+Проверить частоту кадров:
 
 ```bash
 ros2 topic hz /camera/image/raw
@@ -524,23 +524,23 @@ from array import array
 msg.data = array('B', data)
 ```
 
-Также publisher использует:
+Узел публикации также использует:
 
 ```python
 from rclpy.qos import qos_profile_sensor_data
 ```
 
-После оптимизации raw camera идёт около 30 FPS.
+После оптимизации камера передаёт несжатое видео с частотой около 30 кадров/с.
 
 ---
 
-# Часть D. Текущий рабочий сценарий
+# Часть Г. Текущий порядок работы
 
-## 13. Terminal layout
+## 13. Распределение команд по терминалам
 
-Практичнее держать три terminal windows.
+Удобно использовать три окна терминала.
 
-### Terminal 1 — drivers
+### Терминал 1. Драйверы
 
 Mac:
 
@@ -550,7 +550,7 @@ cd ~/IntelligentRobotics/jetbot_ros2_mipt
 docker compose exec -it jetbot_educational bash
 ```
 
-Container:
+В контейнере:
 
 ```bash
 source /opt/ros/humble/install/setup.bash
@@ -560,9 +560,9 @@ ros2 launch jetbot_bringup activate_all_drivers.launch.py
 
 Оставить работать.
 
-### Terminal 2 — camera
+### Терминал 2. Камера
 
-Зайти в тот же container:
+Войти в тот же контейнер:
 
 ```bash
 source /opt/ros/humble/install/setup.bash
@@ -572,7 +572,7 @@ ros2 run pi_camera publish_raw
 
 Оставить работать.
 
-### Terminal 3 — диагностика / управление
+### Терминал 3. Диагностика и управление
 
 Проверки:
 
@@ -593,9 +593,9 @@ ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist \
 
 ---
 
-# Часть E. Важные замечания
+# Часть Д. Настройки и неполадки
 
-## 14. ROS domain
+## 14. Домен ROS
 
 Симуляция на Mac сейчас использует:
 
@@ -604,7 +604,7 @@ ROS_DOMAIN_ID=42
 ROS_LOCALHOST_ONLY=1
 ```
 
-Физический JetBot Compose сейчас:
+Настройка Compose на физическом JetBot:
 
 ```text
 ROS_DOMAIN_ID=0
@@ -613,35 +613,35 @@ ROS_LOCALHOST_ONLY=0
 
 Это разные режимы.
 
-Преподаватель требует устанавливать `ROS_DOMAIN_ID` равным номеру robot, чтобы несколько JetBot не конфликтовали. Перед работой в аудитории заменить `0` на фактический `jetbot_id` и использовать тот же domain на ноутбуке.
+Преподаватель требует задавать `ROS_DOMAIN_ID` по номеру робота, чтобы несколько JetBot не конфликтовали. Перед работой в аудитории заменить `0` на фактический номер JetBot и указать тот же домен на ноутбуке.
 
 ---
 
 ## 15. Что осталось сделать
 
 На момент последней сессии отдельно проверены:
-- motor control;
-- odometry/controller stack;
-- lidar;
+- управление моторами
+- одометрия и контроллеры
+- лидар
 - Pi Camera;
-- raw camera ~30 FPS.
+- несжатое видео с камеры, около 30 кадров/с
 
-Основной bringup после последней rebuild также снова стартовал успешно.
+Основной пакет запуска снова заработал после последней пересборки.
 
 Следующий этап:
 
-1. проверить lidar + motors + camera одновременно;
-2. настроить ROS discovery между Mac и physical JetBot;
-3. вывести `/scan` и `/camera/image/raw` на Mac через RViz/image viewer;
-4. после этого перейти к заданию движения к ArUco marker.
+1. Проверить лидар, моторы и камеру одновременно.
+2. Настроить обнаружение узлов ROS между Mac и реальным JetBot.
+3. Открыть `/scan` и `/camera/image/raw` на Mac через RViz или средство просмотра изображений.
+4. Перейти к заданию движения к метке ArUco.
 
 ---
 
-## 16. Troubleshooting
+## 16. Устранение неполадок
 
-### `Package 'pi_camera' not found`
+### Не найден пакет `pi_camera`
 
-После container recreate package нужно пересобрать:
+После пересоздания контейнера пакет нужно пересобрать:
 
 ```bash
 cd /home/app/ros2_ws
@@ -652,23 +652,23 @@ source install/setup.bash
 
 ### `LibSerial::OpenFailed` или `Address already in use`
 
-Скорее всего bringup запущен дважды.
+Вероятно, драйверы запущены дважды.
 
-Остановить старый process или на host:
+Завершить прежний процесс или выполнить на JetBot:
 
 ```bash
 docker compose restart jetbot_educational
 ```
 
-### `nvarguscamerasrc` / `nvvidconv` not found
+### Не найдена команда `nvarguscamerasrc` или `nvvidconv`
 
-Проверить camera-related параметры Compose из раздела 10 и сделать:
+Проверить параметры камеры в конфигурации Compose по разделу 10 и выполнить:
 
 ```bash
 docker compose up -d --force-recreate
 ```
 
-### `/camera/image/raw` около 0.7 Hz
+### Частота `/camera/image/raw` около 0,7 Гц
 
 Проверить, что в `publish_raw.py` используется:
 
@@ -680,7 +680,7 @@ msg.data = array('B', data)
 
 ### Команда `ros2` или `colcon` не найдена
 
-Скорее всего команда выполняется на JetBot host. Сначала войти в container:
+Вероятно, команда выполняется в системе JetBot. Сначала войти в контейнер:
 
 ```bash
 docker compose exec -it jetbot_educational bash
