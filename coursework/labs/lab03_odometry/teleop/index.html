@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="teleop-token" content="__SESSION_TOKEN__">
+  <title>Пульт JetBot 3</title>
+  <script>
+    document.documentElement.dataset.theme = localStorage.getItem("jetbot-theme") === "light" ? "light" : "dark";
+  </script>
+  <link rel="stylesheet" href="/panel.css">
+  <script src="/panel.js" defer></script>
+  <script src="/slam.js" defer></script>
+</head>
+<body>
+  <svg hidden aria-hidden="true">
+    <symbol id="icon-expand" viewBox="0 0 24 24"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></symbol>
+    <symbol id="icon-collapse" viewBox="0 0 24 24"><path d="M4 9h5V4m11 5h-5V4M9 20v-5H4m11 5v-5h5"/></symbol>
+  </svg>
+  <header class="topbar">
+    <h1>Пульт JetBot 3</h1>
+    <p class="context" id="panel-context">ЛР 3 · Одометрия</p>
+    <div class="toolbar">
+      <span id="connection" class="indicator" role="status">Подключение</span>
+      <button type="button" class="icon-button" data-fullscreen="page" data-label="пульт"
+              aria-label="Развернуть пульт" title="Развернуть пульт">
+        <svg aria-hidden="true"><use href="#icon-expand"/></svg>
+      </button>
+      <button type="button" id="theme" class="icon-button" aria-label="Переключить тему">
+        <svg class="moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.8 14.2a9 9 0 0 1-11-11 9 9 0 1 0 11 11Z"/>
+        </svg>
+        <svg class="sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+  <main class="workspace">
+    <section class="video" aria-labelledby="camera-title">
+      <header class="section-header"><h2 id="camera-title">Камера JetBot</h2><span class="indicator" id="live">Ожидаю кадр</span></header>
+      <div class="frame">
+        <img id="camera" src="/video?key=__SESSION_TOKEN__" alt="Живое изображение с фронтальной камеры JetBot 3">
+        <div id="camera-empty" class="empty">Подключаю камеру…</div>
+      </div>
+      <section class="controls" aria-label="Управление движением">
+        <div class="control-row">
+          <div>
+            <p id="mode" class="mode" role="status">Ожидаю камеру и одометрию</p>
+            <div class="measure">Команда <span id="current-command">0,00 м/с · 0,00 рад/с</span></div>
+          </div>
+          <div class="arm-row">
+            <button type="button" id="arm" class="primary" disabled>Включить управление</button>
+            <button type="button" id="stop" class="stop">Стоп</button>
+          </div>
+        </div>
+        <div class="scales">
+          <label class="range"><span>Линейная скорость</span><output for="linear" id="linear-out">0,10 м/с</output>
+            <input id="linear" type="range" min="0.02" max="0.20" step="0.01" value="0.10">
+          </label>
+          <label class="range"><span>Скорость поворота</span><output for="angular" id="angular-out">0,50 рад/с</output>
+            <input id="angular" type="range" min="0.10" max="1.0" step="0.05" value="0.50">
+          </label>
+        </div>
+        <div class="key-guide">
+          <div class="keys" aria-hidden="true"><kbd data-key="KeyW">W</kbd><kbd data-key="KeyA">A</kbd><kbd data-key="KeyS">S</kbd><kbd data-key="KeyD">D</kbd></div>
+          <p>Удерживайте клавиши для движения. <kbd>Пробел</kbd> останавливает робота.</p>
+        </div>
+      </section>
+    </section>
+    <section class="odometry" aria-labelledby="odom-title">
+      <header class="section-header">
+        <div><h2 id="odom-title">Одометрия</h2><p id="start-state" class="start-state" role="status" hidden></p></div>
+        <button type="button" class="secondary" id="clear">Отметить старт</button>
+      </header>
+      <div class="tabs" role="tablist" aria-label="Визуализация JetBot">
+        <button type="button" role="tab" id="wheel" aria-controls="odom-panel" aria-selected="true">Колёсная</button>
+        <button type="button" role="tab" id="lidar" aria-controls="odom-panel" aria-selected="false">Лидарная</button>
+        <button type="button" role="tab" id="fusion" aria-controls="odom-panel" aria-selected="false">EKF</button>
+        <button type="button" role="tab" id="slam" aria-controls="slam-panel" aria-selected="false">SLAM</button>
+      </div>
+      <div id="odom-panel" role="tabpanel" aria-labelledby="wheel">
+        <div class="odom-views">
+          <section id="scan-view" class="scan-view" aria-labelledby="scan-title" hidden>
+            <header class="scan-header">
+              <h3 id="scan-title">Скан сверху</h3>
+              <span id="scan-info">Ожидаю скан</span>
+              <label>Радиус
+                <select id="scan-radius">
+                  <option value="1">1 м</option>
+                  <option value="2" selected>2 м</option>
+                  <option value="4">4 м</option>
+                  <option value="8">8 м</option>
+                  <option value="12">12 м</option>
+                </select>
+              </label>
+              <button type="button" class="icon-button viewport-button" data-fullscreen="scan-view"
+                      data-label="скан" aria-label="Развернуть скан" title="Развернуть скан">
+                <svg aria-hidden="true"><use href="#icon-expand"/></svg>
+              </button>
+            </header>
+            <div class="scan-plot">
+              <canvas id="scan" aria-label="Точки скана в системе координат лидара" role="img"></canvas>
+              <div id="scan-empty" class="empty" role="status">Ожидаю данные лидара…</div>
+            </div>
+          </section>
+          <section class="trajectory-view" id="trajectory-view" aria-label="Траектория одометрии">
+            <header class="scan-header" id="trajectory-header" hidden>
+              <h3 id="trajectory-title">Траектория RF2O</h3>
+              <button type="button" class="icon-button viewport-button" data-fullscreen="trajectory-view"
+                      data-label="траекторию" aria-label="Развернуть траекторию" title="Развернуть траекторию">
+                <svg aria-hidden="true"><use href="#icon-expand"/></svg>
+              </button>
+            </header>
+            <div class="plot">
+              <canvas id="trajectory" aria-label="Вид сверху на траекторию в метрах" role="img"></canvas>
+              <div id="plot-empty" class="empty" role="status">Ожидаю колёсную одометрию…</div>
+            </div>
+            <dl class="compare-legend" id="compare-legend" aria-label="Расстояние от старта" hidden>
+              <div class="series-wheel"><dt>Колёсная</dt><dd id="distance-wheel">—</dd></div>
+              <div class="series-lidar"><dt>RF2O</dt><dd id="distance-lidar">—</dd></div>
+              <div class="series-fusion"><dt>EKF</dt><dd id="distance-fusion">—</dd></div>
+            </dl>
+          </section>
+        </div>
+        <dl class="readouts">
+          <div><dt>X</dt><dd id="x">—</dd></div>
+          <div><dt>Y</dt><dd id="y">—</dd></div>
+          <div><dt>Курс</dt><dd id="yaw">—</dd></div>
+          <div><dt>Скорость</dt><dd id="speed">—</dd></div>
+          <div><dt>Поворот</dt><dd id="turn">—</dd></div>
+        </dl>
+      </div>
+      <div id="slam-panel" role="tabpanel" aria-labelledby="slam" hidden>
+        <header class="scan-header">
+          <h3>Карта помещения</h3>
+          <span id="slam-info"></span>
+          <label class="map-toggle"><input type="checkbox" id="slam-graph" checked> Граф</label>
+          <button type="button" class="icon-button viewport-button" data-fullscreen="slam-panel"
+                  data-label="карту" aria-label="Развернуть карту" title="Развернуть карту">
+            <svg aria-hidden="true"><use href="#icon-expand"/></svg>
+          </button>
+        </header>
+        <div class="plot">
+          <canvas id="slam-map" aria-label="Карта занятости, ключевые кадры и положение JetBot" role="img"></canvas>
+          <div id="slam-empty" class="empty">Ожидаю карту SLAM…</div>
+        </div>
+        <div class="map-legend">
+          <span class="map-wall">Препятствие</span>
+          <span class="map-free">Свободно</span>
+          <span class="map-node">Ключевой кадр</span>
+          <span class="map-robot">JetBot</span>
+          <span id="slam-pose-status"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

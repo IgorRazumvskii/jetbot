@@ -1,0 +1,380 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <model name="diffbot">
+    <pose>0 0 0 0 0 0</pose>
+    <static>false</static>
+
+    <!-- Virtual frame equivalent of URDF base_footprint.
+         URDF had base_link relative to base_footprint with RPY = (-1.5708, 0, 0), XYZ = (0, 0, 0.035).
+         The inverse (frame relative to base_link) is RPY = (1.5708, 0, 0), XYZ = (0, 0.035, 0). -->
+    <frame name="base_footprint" attached_to="base_link">
+      <pose>0 0.035 0 1.5708 0 0</pose>
+    </frame>
+
+    <!-- base_link -->
+    <link name="base_link">
+      <pose relative_to="__model__">0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.015609 -0.093176 0.034957 0 0 0</pose>
+        <mass>10</mass>
+        <inertia>
+          <ixx>0.0016616</ixx>
+          <ixy>-5.2805e-05</ixy>
+          <ixz>-3.0797e-06</ixz>
+          <iyy>0.0024755</iyy>
+          <iyz>-1.1469e-06</iyz>
+          <izz>0.0030448</izz>
+        </inertia>
+      </inertial>
+      <visual name="base_link_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/base_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="base_link_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/base_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- caster_ball_link -->
+    <link name="caster_ball_link">
+      <pose relative_to="base_link">-0.083 0.0208 0 -1.5708 0 3.1416</pose>
+      <inertial>
+        <pose>-1.8666e-06 -8.4152e-07 -0.0059479 0 0 0</pose>
+        <mass>0.011917</mass>
+        <inertia>
+          <ixx>2.5586e-07</ixx>
+          <ixy>6.7546e-11</ixy>
+          <ixz>3.0679e-11</ixz>
+          <iyy>1.8138e-07</iyy>
+          <iyz>1.7478e-14</iyz>
+          <izz>2.6388e-07</izz>
+        </inertia>
+      </inertial>
+      <visual name="caster_ball_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/caster_ball_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.61176 0.65882 0.67059 1</ambient>
+          <diffuse>0.61176 0.65882 0.67059 1</diffuse>
+        </material>
+      </visual>
+      <collision name="caster_ball_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/caster_ball_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- camera_link -->
+    <link name="camera_link">
+      <pose relative_to="base_link">0.053557 -0.057568 0 1.9199 -1.5708 3.1416</pose>
+      <inertial>
+        <pose>7.2979e-05 -0.0036847 -0.0021354 0 0 0</pose>
+        <mass>0.068956</mass>
+        <inertia>
+          <ixx>2.4451e-06</ixx>
+          <ixy>1.5517e-12</ixy>
+          <ixz>-1.8066e-08</ixz>
+          <iyy>3.8509e-06</iyy>
+          <iyz>1.5741e-11</iyz>
+          <izz>2.7785e-06</izz>
+        </inertia>
+      </inertial>
+      <visual name="camera_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/camera_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0 0 0 1</ambient>
+          <diffuse>0 0 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="camera_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/camera_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+     <sensor name="color" type="camera">
+        <pose>0 0.0325 0.0125 0 0 0</pose>
+        <update_rate>6</update_rate>
+        <always_on>0</always_on>
+        <camera>
+          <horizontal_fov>1.20427718</horizontal_fov>
+          <image>
+            <width>848</width>
+            <height>480</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>50</far>
+          </clip>
+          <lens>
+            <intrinsics>
+              <fx>615.9603271484375</fx>
+              <fy>616.227294921875</fy>
+              <cx>419.83026123046875</cx>
+              <cy>245.1431427001953</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+        </camera>
+        <ignition_frame_id>camera_link</ignition_frame_id>
+      </sensor>
+    </link>
+
+    <!-- lidar_link -->
+    <link name="lidar_link">
+      <!-- URDF raised frame by +0.045 in z and shifted mesh down by 0.045 -->
+      <pose relative_to="base_link">-0.011026 -0.1512 0 1.5708 0 0</pose>
+      <inertial>
+        <pose>-0.0065398705841951 0.000690713934940602 0.0309531855778308 0 0 0</pose>
+        <mass>0.564294014597891</mass>
+        <inertia>
+          <ixx>0.000142259766419758</ixx>
+          <ixy>-2.48879198210457e-06</ixy>
+          <ixz>2.55066150802879e-06</ixz>
+          <iyy>0.000186813526823412</iyy>
+          <iyz>8.53957008589798e-08</iyz>
+          <izz>0.000308569075147343</izz>
+        </inertia>
+      </inertial>
+      <visual name="lidar_visual">
+        <pose>0 0 -0.045 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/lidar_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0 0 0  1</ambient>
+          <diffuse>0 0 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="lidar_collision">
+        <pose>0 0 -0.045 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/lidar_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+
+    <sensor name="scan_front" type="gpu_lidar">
+        <always_on>true</always_on>
+        <update_rate>10</update_rate>
+        <pose>0 0 0 0 0 0</pose>
+         <lidar>
+          <scan>
+            <horizontal>
+              <samples>720</samples>
+              <resolution>1</resolution>
+              <min_angle>-1.5707963</min_angle>  <!-- -90deg -->
+              <max_angle> 1.5707963</max_angle>  <!-- +90deg -->
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.12</min>
+            <max>10.0</max>
+            <resolution>0.01</resolution>
+          </range>
+        </lidar>
+        <ignition_frame_id>lidar_link</ignition_frame_id>
+      </sensor>
+    </link>
+
+    <!-- left_wheel_link -->
+    <link name="left_wheel_link">
+      <pose relative_to="base_link">0 0 0.0575 1.5708 0 0</pose>
+      <inertial>
+        <pose>-3.04495944265183e-05 0.0183179040454366 -1.07396547774597e-07 0 0 0</pose>
+        <mass>0.388137366198046</mass>
+        <inertia>
+          <ixx>0.000163568162825962</ixx>
+          <ixy>-1.71522947947033e-07</ixy>
+          <ixz>-2.55253489205791e-08</ixz>
+          <iyy>0.000281670214792073</iyy>
+          <iyz>-1.06397401901507e-09</iyz>
+          <izz>0.000163656330155147</izz>
+        </inertia>
+      </inertial>
+      <visual name="left_wheel_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/left_wheel_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0 0 0 1</ambient>
+          <diffuse>0 0 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="left_wheel_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/left_wheel_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- right_wheel_link -->
+    <link name="right_wheel_link">
+      <pose relative_to="base_link">0 0 -0.0575 -1.5708 3.14359 3.14359</pose>
+      <inertial>
+        <pose>-3.04495944265183e-05 0.0183179040454366 -1.07396547774597e-07 0 0 0</pose>
+        <mass>0.388137366198046</mass>
+        <inertia>
+          <ixx>0.000163568162825962</ixx>
+          <ixy>-1.71522947947033e-07</ixy>
+          <ixz>-2.55253489205791e-08</ixz>
+          <iyy>0.000281670214792073</iyy>
+          <iyz>-1.06397401901507e-09</iyz>
+          <izz>0.000163656330155147</izz>
+        </inertia>
+      </inertial>
+      <visual name="right_wheel_visual">
+        <pose>0 0 0 0 0 3.14359</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/right_wheel_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0 0 0 1</ambient>
+          <diffuse>0 0 0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="right_wheel_collision">
+        <pose>0 0 0 0 0 3.14359</pose>
+        <geometry>
+          <mesh>
+            <uri>model://jetbot/meshes/right_wheel_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Joints -->
+
+    <!-- caster fixed -->
+    <joint name="caster_ball_fix_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>caster_ball_link</child>
+    </joint>
+
+    <!-- camera fixed -->
+    <joint name="camera_fix_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>camera_link</child>
+    </joint>
+
+    <!-- lidar fixed -->
+    <joint name="lidar_fix_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>lidar_link</child>
+    </joint>
+
+    <!-- wheels continuous -->
+    <joint name="left_wheel_continuous_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>left_wheel_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <effort>3.6</effort>
+        </limit>
+        <dynamics>
+          <damping>3.0</damping>
+          <friction>0.5</friction>
+        </dynamics>
+      </axis>
+
+    </joint>
+
+    <joint name="right_wheel_continuous_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>right_wheel_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <effort>3.6</effort>
+        </limit>
+        <dynamics>
+          <damping>3.0</damping>
+          <friction>0.5</friction>
+        </dynamics>
+      </axis>
+    </joint>
+
+
+
+
+
+    
+
+
+<!-- CONTROLERS PLUGINS -->
+    <!-- DIFF DRIVE PLUGIN / WHEELS CONTROLER -->
+    <plugin filename="ignition-gazebo-diff-drive-system" name="ignition::gazebo::systems::DiffDrive">
+      <left_joint>left_wheel_continuous_joint</left_joint>
+      <right_joint>right_wheel_continuous_joint</right_joint>
+      <wheel_separation>0.115</wheel_separation>
+      <wheel_radius>0.033</wheel_radius>
+      <odom_publish_frequency>20</odom_publish_frequency>
+      <frame_id>odom</frame_id>
+      <publish_odom_tf>false</publish_odom_tf>
+      <child_frame_id>base_footprint</child_frame_id>
+    </plugin>
+
+
+    <!-- GROUND ODOMETRY POSITION STATE PUBLISHER (FAKE LOCALIZATION) -->
+    <plugin filename="ignition-gazebo-pose-publisher-system" name="ignition::gazebo::systems::PosePublisher">
+      <publish_link_pose>true</publish_link_pose>
+      <publish_collision_pose>false</publish_collision_pose>
+      <publish_visual_pose>false</publish_visual_pose>
+      <publish_sensor_pose>false</publish_sensor_pose>
+      <publish_nested_model_pose>true</publish_nested_model_pose>
+      <update_frequency>20</update_frequency>
+    </plugin>
+
+  <!-- JOINT STATE PUBLISHER-->
+    <plugin filename="ignition-gazebo-joint-state-publisher-system"
+            name="ignition::gazebo::systems::JointStatePublisher">
+      <!-- Optional: choose the publish topic (default is /world/<world>/model/<model>/state) -->
+      <topic>/joint_state</topic>
+
+      <!-- Optional: publish only specific joints (repeatable) -->
+      <!-- <joint_name>left_wheel_continuous_joint</joint_name> -->
+      <!-- <joint_name>right_wheel_continuous_joint</joint_name> -->
+    </plugin>
+
+  </model>
+</sdf>

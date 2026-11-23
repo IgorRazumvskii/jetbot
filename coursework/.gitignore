@@ -1,0 +1,11 @@
+.DS_Store
+keys/
+links.txt
+tools/ros-jazzy/.pixi/
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+ros2_ws/src/jetbot_ros_gazebo
+**/__pycache__/
+*.pyc
+*.egg-info/

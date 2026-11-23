@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scout · SLAM по rosbag</title>
+  <link rel="stylesheet" href="/panel.css">
+  <link rel="stylesheet" href="/playback.css">
+  <script src="/slam.js" defer></script>
+  <script src="/cloud.js" defer></script>
+  <script src="/playback.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>Scout SLAM</h1>
+    <p class="context">ДЗ 2 · Воспроизведение rosbag</p>
+  </header>
+  <main class="workspace">
+    <section class="video replay-panel" id="camera-panel" aria-labelledby="camera-title">
+      <header class="section-header">
+        <h2 id="camera-title">Камера Scout</h2>
+        <button class="secondary expand" type="button" data-target="camera-panel" aria-pressed="false">На весь экран</button>
+      </header>
+      <div class="frame">
+        <video id="camera" preload="auto" playsinline aria-hidden="true">
+          <source src="/camera.mp4" type="video/mp4">
+        </video>
+        <canvas id="camera-image" width="640" height="480" role="img"
+                aria-label="Запись с фронтальной камеры Scout"></canvas>
+        <p class="empty" id="replay-error" role="status" hidden></p>
+      </div>
+      <div class="transport" aria-label="Воспроизведение записи">
+        <button id="play" class="primary" type="button" disabled>Воспроизвести</button>
+        <input id="seek" type="range" min="0" max="90" step="0.01" value="0" aria-label="Позиция в записи" disabled>
+        <output id="time">0:00 / 1:30</output>
+      </div>
+    </section>
+    <section class="odometry replay-panel" id="view-panel" aria-label="Визуализация SLAM">
+      <header class="section-header">
+        <div class="tabs replay-tabs" role="tablist" aria-label="Режим визуализации">
+          <button role="tab" type="button" id="map-tab" aria-controls="slam-panel" aria-selected="true">Карта и путь</button>
+          <button role="tab" type="button" id="cloud-tab" aria-controls="cloud-panel" aria-selected="false" tabindex="-1">3D-лидар</button>
+        </div>
+        <button class="secondary expand" type="button" data-target="view-panel" aria-pressed="false">На весь экран</button>
+      </header>
+      <div id="slam-panel" class="replay-view" role="tabpanel" aria-labelledby="map-tab" data-source="replay">
+        <div class="plot">
+          <canvas id="slam-map" role="img" aria-label="Карта занятости и траектория в выбранный момент"></canvas>
+          <div class="empty" id="slam-empty" role="status">Ожидаю первую карту…</div>
+        </div>
+        <div class="map-legend">
+          <span id="slam-info"></span>
+          <span id="slam-pose-status"></span>
+          <label class="map-toggle"><input id="slam-graph" type="checkbox" checked> Траектория</label>
+        </div>
+      </div>
+      <div id="cloud-panel" class="replay-view" role="tabpanel" aria-labelledby="cloud-tab" hidden>
+        <div class="plot">
+          <canvas id="cloud-view" role="img" tabindex="0" aria-label="3D-скан лидара. Стрелки вращают вид, плюс и минус меняют масштаб"></canvas>
+        </div>
+        <div class="map-legend">
+          <span id="cloud-info">Ожидаю скан</span>
+          <span class="cloud-hint">Перетащите для поворота · прокрутите для масштаба</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

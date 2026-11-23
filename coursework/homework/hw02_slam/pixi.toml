@@ -1,0 +1,17 @@
+[workspace]
+name = "hw02-slam"
+version = "0.1.0"
+channels = ["https://prefix.dev/robostack-jazzy", "https://prefix.dev/conda-forge"]
+platforms = ["osx-arm64"]
+
+[dependencies]
+ros-jazzy-ros-core = ">=0.11,<0.12"
+ros-jazzy-rosbag2 = ">=0.26,<0.27"
+ros-jazzy-pointcloud-to-laserscan = ">=2.0.2,<3"
+ros-jazzy-slam-toolbox = ">=2.8,<2.9"
+ros-jazzy-rviz2 = ">=14.1,<15"
+colcon-common-extensions = ">=0.3,<0.4"
+
+[tasks]
+build = "colcon build --base-paths package"
+start = "bash scripts/run.sh"
