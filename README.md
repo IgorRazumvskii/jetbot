@@ -12,6 +12,28 @@ This project provides a full ROS2 stack for JetBot robots including:
 - Joystick control support
 - Docker-based deployment
 
+## Визуализации ЛР 3, ЛР 4 и ДЗ 2
+
+[Код и инструкции курса](coursework/README.md)
+
+### ЛР 3. Одометрия JetBot
+
+Колёсная и лидарная одометрия и результат EKF на одном заезде. [Протокол ЛР 3](coursework/labs/lab03_odometry/results/04-ekf-odometry.md)
+
+![Сравнение трёх траекторий одометрии JetBot](coursework/labs/lab03_odometry/results/04-ekf-three-trajectory-comparison.png)
+
+### ЛР 4. Локализация на сохранённой карте
+
+Траектория JetBot при повторном объезде стола поверх карты первого заезда. [Протокол ЛР 4](coursework/labs/lab04_mapping/results/03-localization.md)
+
+![Траектория JetBot на сохранённой карте](coursework/labs/lab04_mapping/results/03-localization-trajectory.png)
+
+### ДЗ 2. Построение карты из rosbag
+
+Ускоренное воспроизведение сохранённых состояний SLAM из 90-секундного фрагмента записи Scout. [Итоговая карта и протокол ДЗ 2](coursework/homework/hw02_slam/results/02-full-first-segment.md)
+
+![Карта занятости и траектория Scout появляются по мере воспроизведения rosbag](coursework/homework/hw02_slam/results/03-slam-replay.gif)
+
 ## Prerequisites
 
 - NVIDIA Jetson platform (tested on Jetson Nano)
